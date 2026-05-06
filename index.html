@@ -1212,9 +1212,13 @@
     // ========== 模式判断 ==========
     
     function getCurrentMode(roles) {
-      // 如果只有核心5人，或者是核心5人的子集，使用5人模式
-      const hasExtended = roles.some(r => !CORE_ROLES.includes(r));
-      if (hasExtended) return 'full10';
+      // 智能判断：根据已解锁的角色数量决定模式
+      const coreCount = roles.filter(r => CORE_ROLES.includes(r)).length;
+      const extendedCount = roles.filter(r => !CORE_ROLES.includes(r)).length;
+      
+      // 如果有扩展角色且总数>=5，优先10人模式
+      if (extendedCount > 0 && roles.length >= 5) return 'full10';
+      // 否则5人模式
       return 'core5';
     }
     
@@ -1382,75 +1386,132 @@
     
     function renderScript(roles, mode) {
       const container = document.getElementById('contentSection');
-      const script = mode === 'core5' ? SCRIPT_5 : SCRIPT_10;
-      const minCount = mode === 'core5' ? 3 : 5;  // 至少3人/5人就开始显示剧本
-      const fullCount = mode === 'core5' ? 5 : 10;
-
-      if (roles.length < minCount) return;
-
+      const coreRoles = roles.filter(r => CORE_ROLES.includes(r));
+      const extendedRoles = roles.filter(r => !CORE_ROLES.includes(r));
+      
       // 移除现有的剧本
       container.querySelectorAll('.script-card').forEach(el => el.remove());
-
-      const card = document.createElement('div');
-      card.className = 'script-card fade-in';
-
-      // 构建剧本头部信息
-      const isIncomplete = roles.length < fullCount;
-      let headerHTML = `
-        <div class="script-header">
-          <span class="script-badge">${script.mode}</span>
-          <h3 class="script-title">${script.title}</h3>
-          <p class="script-meta">⏱ ${script.duration}</p>
-          ${isIncomplete ? `<p style="color:#B8860B;font-size:13px;margin-top:4px;">📖 剧本预览中 · 还需 ${fullCount - roles.length} 人解锁完整版</p>` : '<p style="color:#6B8E23;font-size:13px;margin-top:4px;">✅ 完整剧本已解锁</p>'}
-        </div>
-      `;
-
-      // 如果有角色列表，添加角色信息
-      if (script.roles) {
-        headerHTML += `
-          <div style="padding: 12px 0 0 0; border-bottom: 1px dashed rgba(139, 90, 43, 0.15);">
-            <p style="font-size: 13px; color: #8B5A2B; margin-bottom: 8px; font-weight: 500;">✨ 核心角色</p>
-            <p style="font-size: 14px; color: #5D4E42; line-height: 1.8;">
-              ${script.roles.join(' · ')}
-            </p>
+      
+      // 渲染5人版剧本（核心5人>=3就显示）
+      if (coreRoles.length >= 3) {
+        const script5 = SCRIPT_5;
+        const isIncomplete5 = coreRoles.length < 5;
+        
+        let headerHTML5 = `
+          <div class="script-header">
+            <span class="script-badge">${script5.mode}</span>
+            <h3 class="script-title">${script5.title}</h3>
+            <p class="script-meta">⏱ ${script5.duration}</p>
+            ${isIncomplete5 ? `<p style="color:#B8860B;font-size:13px;margin-top:4px;">📖 剧本预览中 · 还需 ${5 - coreRoles.length} 位核心角色解锁完整版</p>` : '<p style="color:#6B8E23;font-size:13px;margin-top:4px;">✅ 5人版完整剧本已解锁</p>'}
           </div>
         `;
-      }
-
-      // 如果有碰撞列表，添加碰撞信息
-      if (script.collisions) {
-        headerHTML += `
-          <div style="padding: 12px 0;">
-            <p style="font-size: 13px; color: #8B5A2B; margin-bottom: 8px; font-weight: 500;">⚡ 命运碰撞</p>
-            ${script.collisions.map(c => `
-              <div style="background: rgba(253, 246, 227, 0.6); padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 13px;">
-                <div style="font-weight: 500; color: #6B5344; margin-bottom: 2px;">${c.name}：${c.pair}</div>
-                <div style="color: #7D6B5D;">${c.core}</div>
-              </div>
-            `).join('')}
-          </div>
-        `;
-      }
-
-      // 构建幕次内容
-      let actsHTML = script.acts.map(act => {
-        let actTitle = `<h4 class="act-title">${act.title} <span style="font-weight: normal; font-size: 13px; color: #A0826D;">（${act.time}）</span></h4>`;
-        if (act.breathing) {
-          actTitle = `<h4 class="act-title">${act.title} <span style="font-weight: normal; font-size: 13px; color: #A0826D;">（${act.time}）${act.breathing}</span></h4>`;
-        }
-
-        return `
-          <div class="act-section">
-            ${actTitle}
-            <div class="script-content">
-              ${act.content.map(p => `<p>${p}</p>`).join('')}
+        
+        if (script5.roles) {
+          headerHTML5 += `
+            <div style="padding: 12px 0 0 0; border-bottom: 1px dashed rgba(139, 90, 43, 0.15);">
+              <p style="font-size: 13px; color: #8B5A2B; margin-bottom: 8px; font-weight: 500;">✨ 核心角色</p>
+              <p style="font-size: 14px; color: #5D4E42; line-height: 1.8;">
+                ${script5.roles.join(' · ')}
+              </p>
             </div>
+          `;
+        }
+        
+        if (script5.collisions) {
+          headerHTML5 += `
+            <div style="padding: 12px 0;">
+              <p style="font-size: 13px; color: #8B5A2B; margin-bottom: 8px; font-weight: 500;">⚡ 命运碰撞</p>
+              ${script5.collisions.map(c => `
+                <div style="background: rgba(253, 246, 227, 0.6); padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 13px;">
+                  <div style="font-weight: 500; color: #6B5344; margin-bottom: 2px;">${c.name}：${c.pair}</div>
+                  <div style="color: #7D6B5D;">${c.core}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+        
+        let actsHTML5 = script5.acts.map(act => {
+          let actTitle = `<h4 class="act-title">${act.title} <span style="font-weight: normal; font-size: 13px; color: #A0826D;">（${act.time}）</span></h4>`;
+          if (act.breathing) {
+            actTitle = `<h4 class="act-title">${act.title} <span style="font-weight: normal; font-size: 13px; color: #A0826D;">（${act.time}）${act.breathing}</span></h4>`;
+          }
+          return `
+            <div class="act-section">
+              ${actTitle}
+              <div class="script-content">
+                ${act.content.map(p => `<p>${p}</p>`).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        const card5 = document.createElement('div');
+        card5.className = 'script-card fade-in';
+        card5.innerHTML = headerHTML5 + actsHTML5 + `<div class="script-note">💡 ${script5.note}</div>`;
+        container.appendChild(card5);
+      }
+      
+      // 渲染10人版剧本（扩展角色>=3才显示）
+      if (extendedRoles.length >= 3) {
+        const script10 = SCRIPT_10;
+        const totalRoles = roles.length;
+        const isIncomplete10 = totalRoles < 10;
+        
+        let headerHTML10 = `
+          <div class="script-header" style="margin-top:16px;">
+            <span class="script-badge">${script10.mode}</span>
+            <h3 class="script-title">${script10.title}</h3>
+            <p class="script-meta">⏱ ${script10.duration}</p>
+            ${isIncomplete10 ? `<p style="color:#B8860B;font-size:13px;margin-top:4px;">📖 剧本预览中 · 还需 ${10 - totalRoles} 人解锁完整版</p>` : '<p style="color:#6B8E23;font-size:13px;margin-top:4px;">✅ 10人版完整剧本已解锁</p>'}
           </div>
         `;
-      }).join('');
-
-      card.innerHTML = headerHTML + actsHTML + `<div class="script-note">💡 ${script.note}</div>`;
-      container.appendChild(card);
+        
+        if (script10.roles) {
+          headerHTML10 += `
+            <div style="padding: 12px 0 0 0; border-bottom: 1px dashed rgba(139, 90, 43, 0.15);">
+              <p style="font-size: 13px; color: #8B5A2B; margin-bottom: 8px; font-weight: 500;">✨ 全部角色</p>
+              <p style="font-size: 14px; color: #5D4E42; line-height: 1.8;">
+                ${script10.roles.join(' · ')}
+              </p>
+            </div>
+          `;
+        }
+        
+        if (script10.collisions) {
+          headerHTML10 += `
+            <div style="padding: 12px 0;">
+              <p style="font-size: 13px; color: #8B5A2B; margin-bottom: 8px; font-weight: 500;">⚡ 命运碰撞</p>
+              ${script10.collisions.map(c => `
+                <div style="background: rgba(253, 246, 227, 0.6); padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 13px;">
+                  <div style="font-weight: 500; color: #6B5344; margin-bottom: 2px;">${c.name}：${c.pair}</div>
+                  <div style="color: #7D6B5D;">${c.core}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+        
+        let actsHTML10 = script10.acts.map(act => {
+          let actTitle = `<h4 class="act-title">${act.title} <span style="font-weight: normal; font-size: 13px; color: #A0826D;">（${act.time}）</span></h4>`;
+          if (act.breathing) {
+            actTitle = `<h4 class="act-title">${act.title} <span style="font-weight: normal; font-size: 13px; color: #A0826D;">（${act.time}）${act.breathing}</span></h4>`;
+          }
+          return `
+            <div class="act-section">
+              ${actTitle}
+              <div class="script-content">
+                ${act.content.map(p => `<p>${p}</p>`).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        const card10 = document.createElement('div');
+        card10.className = 'script-card fade-in';
+        card10.innerHTML = headerHTML10 + actsHTML10 + `<div class="script-note">💡 ${script10.note}</div>`;
+        container.appendChild(card10);
+      }
     }
     
     function renderUnlockHints(roles, mode) {
