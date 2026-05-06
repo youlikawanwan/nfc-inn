@@ -1383,9 +1383,10 @@
     function renderScript(roles, mode) {
       const container = document.getElementById('contentSection');
       const script = mode === 'core5' ? SCRIPT_5 : SCRIPT_10;
-      const requiredCount = mode === 'core5' ? 5 : 10;
+      const minCount = mode === 'core5' ? 3 : 5;  // 至少3人/5人就开始显示剧本
+      const fullCount = mode === 'core5' ? 5 : 10;
 
-      if (roles.length < requiredCount) return;
+      if (roles.length < minCount) return;
 
       // 移除现有的剧本
       container.querySelectorAll('.script-card').forEach(el => el.remove());
@@ -1394,11 +1395,13 @@
       card.className = 'script-card fade-in';
 
       // 构建剧本头部信息
+      const isIncomplete = roles.length < fullCount;
       let headerHTML = `
         <div class="script-header">
           <span class="script-badge">${script.mode}</span>
           <h3 class="script-title">${script.title}</h3>
           <p class="script-meta">⏱ ${script.duration}</p>
+          ${isIncomplete ? `<p style="color:#B8860B;font-size:13px;margin-top:4px;">📖 剧本预览中 · 还需 ${fullCount - roles.length} 人解锁完整版</p>` : '<p style="color:#6B8E23;font-size:13px;margin-top:4px;">✅ 完整剧本已解锁</p>'}
         </div>
       `;
 
