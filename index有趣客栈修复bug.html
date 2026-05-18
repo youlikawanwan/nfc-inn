@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>有趣客栈 · 觉醒之夜</title>
+  <style>
+    /* ========== 基础重置 ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", "Noto Serif SC", serif;
+      background: linear-gradient(180deg, #FDF6E3 0%, #F5ECD7 100%);
+      color: #4A3728;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    /* 宣纸纹理背景 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        radial-gradient(ellipse at 20% 30%, rgba(139, 90, 43, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(139, 90, 43, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(139, 90, 43, 0.02) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    /* ========== 主容器 ========== */
+    .app-container {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    /* ========== 顶部标题栏 ========== */
+    .header {
+      text-align: center;
+      padding: 12px 8px;
+      margin-bottom: 12px;
+    }
+    
+    .inn-name {
+      font-size: 28px;
+      font-weight: 700;
+      color: #8B5A2B;
+      letter-spacing: 4px;
+      text-shadow: 1px 1px 2px rgba(139, 90, 43, 0.2);
+      margin-bottom: 4px;
+    }
+    
+    .inn-subtitle {
+      font-size: 14px;
+      color: #A0826D;
+      letter-spacing: 2px;
+    }
+    
+    /* ========== 进度条 ========== */
+    .progress-section {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(139, 90, 43, 0.1);
+    }
+    
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .progress-label {
+      font-size: 16px;
+      color: #6B5344;
+      font-weight: 500;
+    }
+    
+    .progress-count {
+      font-size: 20px;
+      font-weight: 700;
+      color: #8B5A2B;
+    }
+    
+    .progress-count span {
+      font-size: 28px;
+    }
+    
+    .progress-bar {
+      height: 12px;
+      background: #E8DFD0;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #D4A574 0%, #C49A6C 100%);
+      border-radius: 6px;
+      transition: width 0.5s ease;
+      position: relative;
+    }
+    
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%);
+      border-radius: 6px 6px 0 0;
+    }
+    
+    .progress-milestones {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 11px;
+      color: #A0826D;
+    }
+    
+    .milestone {
+      text-align: center;
+    }
+    
+    .milestone.active {
+      color: #8B5A2B;
+      font-weight: 600;
+    }
+    
+    /* ========== 角色卡片 ========== */
+    .character-card {
+      background: linear-gradient(135deg, #FFFFFF 0%, #FDF9F3 100%);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(139, 90, 43, 0.12);
+      border: 2px solid rgba(139, 90, 43, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .character-card::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      opacity: 0.1;
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .character-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 16px;
+      object-fit: cover;
+      border: 3px solid;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+    
+    .character-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .character-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #4A3728;
+      margin-bottom: 4px;
+    }
+    
+    .character-tagline {
+      font-size: 15px;
+      color: #7D6B5D;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+    
+    .character-color-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .card-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(139, 90, 43, 0.2), transparent);
+      margin: 12px 0;
+    }
+    
+    .quotes-section {
+      margin-top: 16px;
+    }
+    
+    .quotes-title {
+      font-size: 14px;
+      color: #8B5A2B;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .quotes-title::before {
+      content: '✦';
+      font-size: 12px;
+    }
+    
+    .quote-item {
+      background: rgba(253, 246, 227, 0.8);
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #5D4E42;
+      border-left: 3px solid;
+      position: relative;
+    }
+    
+    .quote-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .quote-number {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 11px;
+      color: #A0826D;
+    }
+    
+    /* ========== 内容区域 ========== */
+    .content-section {
+      flex: 1;
+      margin-bottom: 16px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #6B5344;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(180deg, #D4A574 0%, #C49A6C 100%);
+      border-radius: 2px;
+    }
+    
+    /* 碰撞台词 */
+    .collision-card {
+      background: linear-gradient(135deg, #FFFBF5 0%, #FFF8EE 100%);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 12px rgba(139, 90, 43, 0.08);
+      border: 1px solid rgba(139, 90, 43, 0.08);
+    }
+    
+    .collision-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .collision-pair {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .collision-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid;
+    }
+    
+    .collision-vs {
+      font-size: 14px;
+      color: #A0826D;
+      padding: 0 4px;
+    }
+    
+    .dialogue-block {
+      background: rgba(255, 251, 245, 0.9);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    
+    .dialogue-speaker {
+      font-size: 13px;
+      font-weight: 600;
+      color: #8B5A2B;
+      margin-bottom: 6px;
+    }
+    
+    .dialogue-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #5D4E42;
+    }
+    
+    /* 小剧场 */
+    .theater-card {
+      background: linear-gradient(135deg, #FDF9F3 0%, #FAF5EC 100%);
+      border-radius: 20px;
+      padding: 24px 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 16px rgba(139, 90, 43, 0.1);
+      border: 1px solid rgba(139, 90, 43, 0.08);
+    }
+    
+    .theater-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #8B5A2B;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    
+    .theater-subtitle {
+      font-size: 14px;
+      color: #A0826D;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .theater-content {
+      background: rgba(255, 251, 245, 0.8);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    
+    .theater-line {
+      margin-bottom: 16px;
+      line-height: 1.8;
+    }
+    
+    .theater-line:last-child {
+      margin-bottom: 0;
+    }
+    
+    .theater-speaker {
+      font-size: 15px;
+      font-weight: 600;
+      color: #8B5A2B;
+      margin-bottom: 4px;
+    }
+    
+    .theater-text {
+      font-size: 16px;
+      color: #5D4E42;
+      padding-left: 12px;
+      border-left: 2px solid rgba(139, 90, 43, 0.2);
+    }
+    
+    /* 剧本 */
+    .script-card {
+      background: linear-gradient(135deg, #FFFFFF 0%, #FDF9F3 100%);
+      border-radius: 20px;
+      padding: 24px 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 20px rgba(139, 90, 43, 0.1);
+      border: 1px solid rgba(139, 90, 43, 0.1);
+    }
+    
+    .script-header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed rgba(139, 90, 43, 0.2);
+    }
+    
+    .script-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #D4A574 0%, #C49A6C 100%);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .script-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #6B5344;
+      margin-bottom: 4px;
+    }
+    
+    .script-meta {
+      font-size: 13px;
+      color: #A0826D;
+    }
+    
+    .act-section {
+      margin-bottom: 20px;
+    }
+    
+    .act-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .act-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #8B5A2B;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(139, 90, 43, 0.15);
+    }
+    
+    .script-content {
+      font-size: 15px;
+      line-height: 2;
+      color: #5D4E42;
+    }
+    
+    .script-content p {
+      margin-bottom: 12px;
+    }
+    
+    .script-content p:last-child {
+      margin-bottom: 0;
+    }
+    
+    .script-note {
+      background: rgba(212, 165, 116, 0.15);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #7D6B5D;
+      margin-top: 12px;
+      border-left: 3px solid #D4A574;
+    }
+    
+    /* ========== 解锁提示 ========== */
+    .unlock-hint {
+      background: linear-gradient(135deg, #FFF8EE 0%, #FDF5E6 100%);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 12px;
+      border: 1px dashed rgba(139, 90, 43, 0.3);
+    }
+    
+    .unlock-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    
+    .unlock-text {
+      font-size: 16px;
+      color: #8B5A2B;
+      font-weight: 500;
+    }
+    
+    .unlock-requirement {
+      font-size: 14px;
+      color: #A0826D;
+      margin-top: 4px;
+    }
+    
+    /* ========== 底部按钮 ========== */
+    .bottom-actions {
+      padding: 12px 0;
+      padding-bottom: env(safe-area-inset-bottom, 12px);
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 16px 24px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #D4A574 0%, #C49A6C 100%);
+      color: white;
+      box-shadow: 0 4px 16px rgba(196, 154, 108, 0.4);
+      margin-bottom: 10px;
+    }
+    
+    .btn-primary:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 8px rgba(196, 154, 108, 0.3);
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.9);
+      color: #8B5A2B;
+      border: 1px solid rgba(139, 90, 43, 0.2);
+    }
+    
+    .btn-secondary:active {
+      background: rgba(139, 90, 43, 0.1);
+    }
+    
+    /* ========== 印章角标 ========== */
+    .seal-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      letter-spacing: 2px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    
+    /* ========== 空状态 ========== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    .empty-title {
+      font-size: 20px;
+      color: #8B5A2B;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .empty-desc {
+      font-size: 15px;
+      color: #A0826D;
+      line-height: 1.6;
+    }
+    
+    /* ========== 已解锁列表 ========== */
+    .unlocked-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .unlocked-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 6px 12px 6px 6px;
+      border-radius: 30px;
+      border: 1px solid rgba(139, 90, 43, 0.15);
+    }
+    
+    .unlocked-item img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    .unlocked-item span {
+      font-size: 13px;
+      color: #6B5344;
+      font-weight: 500;
+    }
+    
+    /* ========== 动画 ========== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .fade-in {
+      animation: fadeInUp 0.5s ease forwards;
+    }
+    
+    /* ========== 响应式 ========== */
+    @media (max-width: 360px) {
+      .character-avatar {
+        width: 80px;
+        height: 80px;
+      }
+      .character-name {
+        font-size: 20px;
+      }
+      .card-header {
+        gap: 12px;
+      }
+    }
+    
+    /* 隐藏类 */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- 顶部标题 -->
+    <header class="header">
+      <h1 class="inn-name">有趣客栈</h1>
+      <p class="inn-subtitle">觉醒之夜 · 角色剧本体验</p>
+    </header>
+    
+    <!-- 进度条 -->
+    <section class="progress-section">
+      <div class="progress-header">
+        <span class="progress-label">已解锁内容</span>
+        <span class="progress-count"><span id="progressCount">0</span> / <span id="progressTotal">10</span></span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      <div class="progress-milestones">
+        <span class="milestone" data-step="1">角色卡</span>
+        <span class="milestone" data-step="2">碰撞</span>
+        <span class="milestone" data-step="3">小剧场</span>
+        <span class="milestone" data-step="5">5人版</span>
+        <span class="milestone" data-step="10">完整版</span>
+      </div>
+    </section>
+    
+    <!-- 当前角色卡 -->
+    <section class="character-card hidden" id="characterCard">
+      <div class="seal-badge" id="characterBadge">核心</div>
+      <div class="card-header">
+        <img class="character-avatar" id="characterAvatar" src="" alt="">
+        <div class="character-info">
+          <h2 class="character-name" id="characterName"></h2>
+          <p class="character-tagline" id="characterTagline"></p>
+          <span class="character-color-tag" id="characterTag"></span>
+        </div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="quotes-section">
+        <h3 class="quotes-title">必说台词</h3>
+        <div id="characterQuotes"></div>
+      </div>
+    </section>
+    
+    <!-- 已解锁角色列表 -->
+    <section class="unlocked-list hidden" id="unlockedList"></section>
+    
+    <!-- 内容区域 -->
+    <section class="content-section" id="contentSection">
+      <!-- 初始空状态 -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🏮</div>
+        <h3 class="empty-title">碰卡开启旅程</h3>
+        <p class="empty-desc">用手机触碰NFC卡片<br>解锁第一个角色的故事</p>
+      </div>
+      
+      <!-- 解锁提示 -->
+      <div class="unlock-hint hidden" id="unlockHint1">
+        <div class="unlock-icon">🎭</div>
+        <p class="unlock-text">再碰一张卡，解锁双人碰撞台词</p>
+        <p class="unlock-requirement">还需 2 人</p>
+      </div>
+      
+      <div class="unlock-hint hidden" id="unlockHint2">
+        <div class="unlock-icon">✨</div>
+        <p class="unlock-text">再碰一张卡，解锁3人小剧场</p>
+        <p class="unlock-requirement">还需 3 人</p>
+      </div>
+      
+      <div class="unlock-hint hidden" id="unlockHint5">
+        <div class="unlock-icon">📜</div>
+        <p class="unlock-text">解锁完整5人版剧本</p>
+        <p class="unlock-requirement">3人即可开场</p>
+      </div>
+      
+      <div class="unlock-hint hidden" id="unlockHint10">
+        <div class="unlock-icon">🎬</div>
+        <p class="unlock-text">解锁完整10人版剧本</p>
+        <p class="unlock-requirement">10位角色全部登场</p>
+      </div>
+    </section>
+    
+    <!-- 底部按钮 -->
+    <div class="bottom-actions">
+      <button class="btn btn-primary" id="resetBtn">
+        <span>🔄</span>
+        <span>重新开始</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ========== 数据定义 ==========
+    
+    // 角色数据
+    const ROLES = {
+      wuzetian: {
+        id: 'wuzetian',
+        name: '武则天',
+        tagline: '打破性别天花板的女人',
+        quotes: [
+          '想做的事，从不等别人同意。',
+          '朕既然来了，这里就该听我的。',
+          '朕认可你。'
+        ],
+        color: '#D4A574',
+        colorBg: 'rgba(212, 165, 116, 0.15)',
+        group: 'core',
+        avatar: 'https://s.coze.cn/image/kY3zvEcuCFs/'
+      },
+      limochou: {
+        id: 'limochou',
+        name: '李莫愁',
+        tagline: '问世间情为何物的痴情仙子',
+        quotes: [
+          '问世间情为何物，直教生死相许。',
+          '放下执念那天，我就能像蝴蝶一样飞舞。',
+          '你可以放下。'
+        ],
+        color: '#E8B4B8',
+        colorBg: 'rgba(232, 180, 184, 0.15)',
+        group: 'core',
+        avatar: 'https://s.coze.cn/image/54q-_LNUc5w/'
+      },
+      zhangyouyi: {
+        id: 'zhangyouyi',
+        name: '张幼仪',
+        tagline: '从被抛弃到银行家的逆袭女性',
+        quotes: [
+          '被辜负不可怕，辜负自己才可怕。',
+          '我不要任何人的施舍，我要靠自己。',
+          '你靠自己。'
+        ],
+        color: '#B8B8B8',
+        colorBg: 'rgba(184, 184, 184, 0.15)',
+        group: 'core',
+        avatar: 'https://s.coze.cn/image/ZNemvRhisEM/'
+      },
+      lindaiyu: {
+        id: 'lindaiyu',
+        name: '林黛玉',
+        tagline: '质本洁来还洁去的诗魂',
+        quotes: [
+          '看见落花会哭，看见日出也会笑——这就是有趣的我。',
+          '质本洁来还洁去，强于污淖陷渠沟。',
+          '你很特别。'
+        ],
+        color: '#C5E1A5',
+        colorBg: 'rgba(197, 225, 165, 0.15)',
+        group: 'core',
+        avatar: 'https://s.coze.cn/image/VZZUGrDZWqA/'
+      },
+      yangjiang: {
+        id: 'yangjiang',
+        name: '杨绛',
+        tagline: '百年从容，淡定优雅',
+        quotes: [
+          '人生最曼妙的风景，是内心的淡定与从容。',
+          '走到人生边上，依然觉得人间值得。',
+          '从容就好。'
+        ],
+        color: '#4A7C59',
+        colorBg: 'rgba(74, 124, 89, 0.15)',
+        group: 'core',
+        avatar: 'https://s.coze.cn/image/WEzAEjcj09A/'
+      },
+      huamulan: {
+        id: 'huamulan',
+        name: '花木兰',
+        tagline: '女扮男装十二年的巾帼英雄',
+        quotes: [
+          '年龄只是数字，有趣的灵魂永远年轻。',
+          '木兰征战沙场，什么没见过！',
+          '你很勇敢。'
+        ],
+        color: '#E57373',
+        colorBg: 'rgba(229, 115, 115, 0.15)',
+        group: 'extended',
+        avatar: 'https://s.coze.cn/image/uhgSMAImllg/'
+      },
+      zhangailing: {
+        id: 'zhangailing',
+        name: '张爱玲',
+        tagline: '看透人间冷暖的毒舌才女',
+        quotes: [
+          '生命是一袭华美的袍，爬满了蚤子。',
+          '看透不美好，依然相信美好。',
+          '你很清醒。'
+        ],
+        color: '#616161',
+        colorBg: 'rgba(97, 97, 97, 0.15)',
+        group: 'extended',
+        avatar: 'https://s.coze.cn/image/YC639w-k8OI/'
+      },
+      shangguanwaner: {
+        id: 'shangguanwaner',
+        name: '上官婉儿',
+        tagline: '政坛文坛双料传奇',
+        quotes: [
+          '女性的智慧，同样可以执掌乾坤。',
+          '这件事，不如听听我的分析？',
+          '你很有智慧。'
+        ],
+        color: '#7986CB',
+        colorBg: 'rgba(121, 134, 203, 0.15)',
+        group: 'extended',
+        avatar: 'https://s.coze.cn/image/zS3DaZxuglY/'
+      },
+      guanyin: {
+        id: 'guanyin',
+        name: '观音菩萨',
+        tagline: '慈悲与智慧的化身',
+        quotes: [
+          '有趣不是没有眼泪，而是带着泪微笑。',
+          '莫哭，莫哭，我与你救苦消灾也。',
+          '你很珍贵。'
+        ],
+        color: '#F5F5F5',
+        colorBg: 'rgba(245, 245, 245, 0.15)',
+        group: 'extended',
+        avatar: 'https://s.coze.cn/image/n2UlJHEISho/'
+      },
+      liqingzhao: {
+        id: 'liqingzhao',
+        name: '李清照',
+        tagline: '千古第一才女，刚烈震烁古今',
+        quotes: [
+          '有趣的灵魂不肯将就，有趣的人生不惧风雨。',
+          '生当作人杰，死亦为鬼雄。',
+          '你很美。'
+        ],
+        color: '#F8BBD9',
+        colorBg: 'rgba(248, 187, 217, 0.15)',
+        group: 'extended',
+        avatar: 'https://s.coze.cn/image/bGdFDkztf-w/'
+      }
+    };
+    
+    // 核心5人
+    const CORE_ROLES = ['wuzetian', 'limochou', 'zhangyouyi', 'lindaiyu', 'yangjiang'];
+    
+    // 碰撞台词数据
+    const COLLISIONS = [
+      {
+        pair: ['wuzetian', 'zhangailing'],
+        dialogues: [
+          { speaker: '武则天', text: '你不需要皇帝位，但你看得比朕还透。' },
+          { speaker: '张爱玲', text: '陛下过奖。我只是……懒得争。' }
+        ]
+      },
+      {
+        pair: ['liqingzhao', 'lindaiyu'],
+        dialogues: [
+          { speaker: '李清照', text: '妹妹的诗词，有愁绪却不消沉，我喜欢。' },
+          { speaker: '林黛玉', text: '姐姐的词，像烈酒。我的词，像清茶。各有各的味道。' }
+        ]
+      },
+      {
+        pair: ['huamulan', 'limochou'],
+        dialogues: [
+          { speaker: '花木兰', text: '莫愁姐姐，你这一身武艺，却困在情里，太可惜了！' },
+          { speaker: '李莫愁', text: '（苦笑）将军……有些事，不是武功高就能解决的。' },
+          { speaker: '花木兰', text: '那就用打仗的劲头，打败那"情"字！' }
+        ]
+      },
+      {
+        pair: ['guanyin', 'yangjiang'],
+        dialogues: [
+          { speaker: '观音菩萨', text: '杨先生，您这一生，是真正的"有趣"。' },
+          { speaker: '杨绛', text: '菩萨过奖。有趣不是没有苦难，而是苦难中依然能笑。' }
+        ]
+      },
+      {
+        pair: ['wuzetian', 'shangguanwaner'],
+        dialogues: [
+          { speaker: '武则天', text: '婉儿，你的智慧，不输任何男人。' },
+          { speaker: '上官婉儿', text: '陛下抬举。但臣妾更想说——您的勇气，照亮了所有女人。' }
+        ]
+      },
+      {
+        pair: ['zhangailing', 'yangjiang'],
+        dialogues: [
+          { speaker: '张爱玲', text: '杨先生，您说淡定从容。可我年轻时候，觉得这世上没什么值得从容的……' },
+          { speaker: '杨绛', text: '没关系。看透过的人，才能真正放下。' },
+          { speaker: '张爱玲', text: '（微笑）也许吧。但我更喜欢——看透过，然后继续折腾。' }
+        ]
+      },
+      {
+        pair: ['huamulan', 'wuzetian'],
+        dialogues: [
+          { speaker: '花木兰', text: '陛下！您是木兰最佩服的女人！' },
+          { speaker: '武则天', text: '哈！木兰将军，你也很不错！女扮男装十二年，厉害！' }
+        ]
+      },
+      {
+        pair: ['liqingzhao', 'limochou'],
+        dialogues: [
+          { speaker: '李清照', text: '莫愁妹妹……同为宋代女子，你的故事，比我的词还曲折。' },
+          { speaker: '李莫愁', text: '（轻声）李姐姐……你的词，我听过。那种"才下眉头，却上心头"的愁……我懂。' }
+        ]
+      },
+      {
+        pair: ['lindaiyu', 'limochou'],
+        dialogues: [
+          { speaker: '林黛玉', text: '姐姐……我懂你的苦。' },
+          { speaker: '李莫愁', text: '（惊讶）妹妹……你也为情所困？' },
+          { speaker: '林黛玉', text: '（点头）我虽未如姐姐般激烈，但那颗心……是一样的痛。' },
+          { speaker: '李莫愁', text: '（抚摸红绸带）原来这世上，还有与我同病相怜之人……' }
+        ]
+      },
+      {
+        pair: ['lindaiyu', 'guanyin'],
+        dialogues: [
+          { speaker: '林黛玉', text: '菩萨……我总是哭，您会不会嫌我烦？' },
+          { speaker: '观音菩萨', text: '傻孩子。能哭出来，说明还有力气。这世间，能哭也是福气。' }
+        ]
+      },
+      {
+        pair: ['shangguanwaner', 'yangjiang'],
+        dialogues: [
+          { speaker: '上官婉儿', text: '杨先生，您的智慧，若在我那个时代，定能执掌天下。' },
+          { speaker: '杨绛', text: '婉儿姑娘，你的政治才华，若在今日，定能改变世界。' }
+        ]
+      },
+      {
+        pair: ['zhangyouyi', 'limochou'],
+        dialogues: [
+          { speaker: '张幼仪', text: '莫愁妹妹，同样被辜负，我选了另一条路。恨太累了。' },
+          { speaker: '李莫愁', text: '（轻声）张姐姐……你怎么做到的？怎么放下？' },
+          { speaker: '张幼仪', text: '不是放下，是把那些力气拿来过自己的日子。' }
+        ]
+      },
+      {
+        pair: ['zhangyouyi', 'zhangailing'],
+        dialogues: [
+          { speaker: '张幼仪', text: '爱玲妹妹，咱俩都是民国的女子，走了不同的路。' },
+          { speaker: '张爱玲', text: '你比我勇敢。我选择躲开，你选择站起来。' },
+          { speaker: '张幼仪', text: '路不同，骨子里一样——不靠任何人。' }
+        ]
+      },
+      {
+        pair: ['zhangailing', 'limochou'],
+        dialogues: [
+          { speaker: '张爱玲', text: '莫愁妹妹……我写过很多为情所困的女子，但没有一个像你这样，让我心疼。' },
+          { speaker: '李莫愁', text: '（轻声）张姐姐……你的小说，我听过。原来这世上，真有人比我更懂这种痛。' },
+          { speaker: '张爱玲', text: '懂又怎样？放下，才是真本事。我到现在都没学会。' },
+          { speaker: '李莫愁', text: '（微微点头）那……我们一起学？' }
+        ]
+      }
+    ];
+    
+    // 3人小剧场（5人版核心碰撞场景）
+    const THEATER_3 = {
+      title: '同样被辜负，不同选择',
+      content: [
+        { speaker: '张幼仪', text: '莫愁妹妹，同样被辜负，我选了另一条路。恨太累了。' },
+        { speaker: '李莫愁', text: '张姐姐……你怎么做到的？怎么放下？' },
+        { speaker: '林黛玉', text: '（轻声）我也想知道……放下是什么感觉？' },
+        { speaker: '张幼仪', text: '不是放下，是把那些力气拿来过自己的日子。' },
+        { speaker: '李莫愁', text: '（沉默片刻）……那些力气，我全用来恨了。' },
+        { speaker: '林黛玉', text: '也许……我们三个，就是同一个故事的三种结局。' },
+        { speaker: '杨绛', text: '（微笑）不是结局，是过程。每种选择，都是一种活法。' },
+        { speaker: '武则天', text: '朕说过——想做的事，从不等别人同意。你们三个，都不等了。这就是力量。' }
+      ]
+    };
+    
+    // 5人版剧本（3幕精简版）
+    const SCRIPT_5 = {
+      title: '有趣客栈 · 觉醒之夜',
+      mode: '5人版',
+      duration: '约70分钟',
+      acts: [
+        {
+          title: '第一幕 · 风雪来客',
+          time: '20分钟',
+          content: [
+            '【场景】暴风雪夜，众人因雪误入"有趣客栈"。店小二苏有趣热情接待。',
+            '【氛围】寒风呼啸，客栈内却温暖如春。烛火摇曳，古筝轻弹。',
+            '【开场】苏有趣："各位客官，今晚这场暴风雪，怕是要把各位留在这儿了。不过没关系，既然来了，就是有缘。来，先喝杯热茶暖暖身子。"',
+            '【自我介绍环节】每人用一句"必说台词"介绍自己，让其他人认识你。',
+            '【互动】众人互相打量，暗自揣测——这群有趣的女人聚在一起，会发生什么？'
+          ]
+        },
+        {
+          title: '第二幕 · 觉醒碰撞',
+          time: '30分钟',
+          content: [
+            '【核心场景】张幼仪×李莫愁的"同样被辜负，不同选择"对话。',
+            '【场景描述】两人在客栈角落对话，其他人静静聆听或参与。',
+            '【高潮】林黛玉×杨绛：感伤与通透的对话。',
+            '【压场】武则天站出来："朕认可你们每一个人。在这里，没有胜负，只有觉醒。"',
+            '【趣格镜】每人走到"趣格镜"前，说一句心里话。镜子会显示你的"有趣属性"。'
+          ]
+        },
+        {
+          title: '第三幕 · 有趣宣言',
+          time: '20分钟',
+          content: [
+            '【宣言环节】每人说一句"有趣宣言"——可以是台词改编，也可以是内心独白。',
+            '【参考台词】如："有趣的人生不惧风雨"、"你靠自己"、"从容就好"等。',
+            '【收尾】苏有趣端上最后一壶茶："今晚的故事，你们自己写。"',
+            '【合影】所有人围坐一起，喊出今晚最有能量的一句口号。',
+            '【彩蛋】每人领一张"有趣签"，上面写着专属寄语。'
+          ]
+        }
+      ],
+      note: '3人即可开场，角色可灵活调配。核心是张幼仪×李莫愁的对话，其他角色可即兴发挥。'
+    };
+    
+    // 10人版剧本（4幕完整版）
+    const SCRIPT_10 = {
+      title: '有趣客栈 · 觉醒之夜',
+      mode: '10人完整版',
+      duration: '约120分钟',
+      acts: [
+        {
+          title: '第一幕 · 乱世群芳',
+          time: '30分钟',
+          content: [
+            '【场景】不同时代的女性，因某种神秘力量，齐聚有趣客栈。',
+            '【开场】苏有趣神秘出现："各位贵客，欢迎来到有趣客栈。这里没有时间，没有朝代，只有——有趣的你。"',
+            '【分组介绍】按朝代/时代分组介绍，每组用一句"必说台词"亮相。',
+            '【第一组：唐代】武则天、上官婉儿',
+            '【第二组：宋代】李莫愁、林黛玉、李清照',
+            '【第三组：民国】张幼仪、张爱玲',
+            '【第四组：其他】花木兰、观音菩萨、杨绛',
+            '【互动】众人互相打量，发现彼此都是"打破常规"的女人。'
+          ]
+        },
+        {
+          title: '第二幕 · 命运交织',
+          time: '40分钟',
+          content: [
+            '【分组讨论】3-4人一组，进行"命运交织"对话。',
+            '【碰撞组合】（根据在场角色动态调整）',
+            '【碰撞1】武则天×张爱玲：权力与清醒的对话',
+            '【碰撞2】李清照×林黛玉：才女之间的惺惺相惜',
+            '【碰撞3】花木兰×李莫愁：巾帼英雄的遗憾',
+            '【碰撞4】观音菩萨×杨绛：慈悲与从容',
+            '【碰撞5】张幼仪×李莫愁：同样被辜负，不同选择（核心碰撞）',
+            '【自由碰撞】其他人可随时加入任意组合。'
+          ]
+        },
+        {
+          title: '第三幕 · 有趣觉醒',
+          time: '30分钟',
+          content: [
+            '【趣格镜】每人依次走到"趣格镜"前，对镜说一句心里话。',
+            '【觉醒宣言】每人用一句话宣告自己的"有趣宣言"。',
+            '【群体互动】找出全场最有共鸣的一句宣言，大家一起喊出来。',
+            '【核心场景】张幼仪×李莫愁×林黛玉的"同样被辜负"对话完整呈现。',
+            '【杨绛压场】"人生最曼妙的风景，是内心的淡定与从容。"',
+            '【武则天总结】"朕认可你们每一个人。你们每一个人，都是传奇。"'
+          ]
+        },
+        {
+          title: '第四幕 · 各奔有趣',
+          time: '20分钟',
+          content: [
+            '【告别】苏有趣送上"有趣签"，每人一枚专属寄语。',
+            '【宣言时刻】所有人齐声喊出今晚最有力的一句口号。',
+            '【参考选项】"有趣不将就"、"人生不设限"、"做自己的主角"等。',
+            '【合影】经典pose：手持有趣签，摆出最美的姿态。',
+            '【尾声】苏有趣："今晚的故事，你们已经写完了。接下来的故事——在人间。"',
+            '【彩蛋】每人领一张"有趣地图"，标注下一个目的地。'
+          ]
+        }
+      ],
+      note: '10人版可分两晚进行，也可压缩为一场。每个碰撞场景可根据在场角色灵活调整。'
+    };
+    
+    // ========== 状态管理 ==========
+    
+    const STORAGE_KEY = 'youqu_roles';
+    
+    function getUnlockedRoles() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    }
+    
+    function saveUnlockedRoles(roles) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(roles));
+    }
+    
+    function addRole(roleId) {
+      const roles = getUnlockedRoles();
+      if (!roles.includes(roleId)) {
+        roles.push(roleId);
+        saveUnlockedRoles(roles);
+      }
+      return roles;
+    }
+    
+    function resetProgress() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    
+    // ========== URL参数解析 ==========
+    
+    function getRoleFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('role');
+    }
+    
+    // ========== 模式判断 ==========
+    
+    function getCurrentMode(roles) {
+      // 如果只有核心5人，或者是核心5人的子集，使用5人模式
+      const hasExtended = roles.some(r => !CORE_ROLES.includes(r));
+      if (hasExtended) return 'full10';
+      return 'core5';
+    }
+    
+    function getTotalCount(mode) {
+      return mode === 'core5' ? 5 : 10;
+    }
+    
+    // ========== 碰撞台词获取 ==========
+    
+    function getCollisionForPair(role1, role2) {
+      return COLLISIONS.find(c => 
+        (c.pair.includes(role1) && c.pair.includes(role2))
+      );
+    }
+    
+    function getAvailableCollisions(roles) {
+      const collisions = [];
+      for (let i = 0; i < roles.length; i++) {
+        for (let j = i + 1; j < roles.length; j++) {
+          const collision = getCollisionForPair(roles[i], roles[j]);
+          if (collision) {
+            collisions.push({ ...collision, pair: [roles[i], roles[j]] });
+          }
+        }
+      }
+      return collisions;
+    }
+    
+    // ========== UI渲染 ==========
+    
+    function renderProgress(roles, mode) {
+      const total = getTotalCount(mode);
+      const count = roles.length;
+      
+      document.getElementById('progressCount').textContent = count;
+      document.getElementById('progressTotal').textContent = total;
+      document.getElementById('progressFill').style.width = `${(count / total) * 100}%`;
+      
+      // 更新里程碑状态
+      const milestones = document.querySelectorAll('.milestone');
+      milestones.forEach(m => {
+        const step = parseInt(m.dataset.step);
+        if (count >= step) {
+          m.classList.add('active');
+        } else {
+          m.classList.remove('active');
+        }
+      });
+    }
+    
+    function renderCharacterCard(roleId) {
+      const role = ROLES[roleId];
+      if (!role) return;
+      
+      const card = document.getElementById('characterCard');
+      card.classList.remove('hidden');
+      
+      // 设置角色信息
+      document.getElementById('characterAvatar').src = role.avatar;
+      document.getElementById('characterAvatar').style.borderColor = role.color;
+      document.getElementById('characterName').textContent = role.name;
+      document.getElementById('characterTagline').textContent = role.tagline;
+      
+      const tag = document.getElementById('characterTag');
+      tag.textContent = role.group === 'core' ? '核心5人' : '扩展5人';
+      tag.style.background = role.colorBg;
+      tag.style.color = role.color;
+      
+      // 印章
+      const badge = document.getElementById('characterBadge');
+      badge.style.background = role.color;
+      badge.textContent = role.group === 'core' ? '核心' : '扩展';
+      
+      // 台词
+      const quotesContainer = document.getElementById('characterQuotes');
+      quotesContainer.innerHTML = role.quotes.map((q, i) => `
+        <div class="quote-item" style="border-left-color: ${role.color}">
+          <span class="quote-number">${i + 1}</span>
+          ${q}
+        </div>
+      `).join('');
+      
+      // 背景装饰
+      card.style.setProperty('--accent-color', role.color);
+    }
+    
+    function renderUnlockedList(roles) {
+      const container = document.getElementById('unlockedList');
+      if (roles.length === 0) {
+        container.classList.add('hidden');
+        return;
+      }
+      
+      container.classList.remove('hidden');
+      container.innerHTML = roles.map(r => {
+        const role = ROLES[r];
+        return `
+          <div class="unlocked-item">
+            <img src="${role.avatar}" alt="${role.name}">
+            <span>${role.name}</span>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function renderCollision(roles) {
+      const container = document.getElementById('contentSection');
+      const collisions = getAvailableCollisions(roles);
+      
+      // 移除现有的碰撞卡片
+      container.querySelectorAll('.collision-card').forEach(el => el.remove());
+      
+      // 插入碰撞卡片
+      collisions.forEach(collision => {
+        const card = document.createElement('div');
+        card.className = 'collision-card fade-in';
+        
+        const avatars = collision.pair.map(r => {
+          const role = ROLES[r];
+          return `<img class="collision-avatar" src="${role.avatar}" style="border-color: ${role.color}" alt="${role.name}">`;
+        }).join('<span class="collision-vs">×</span>');
+        
+        card.innerHTML = `
+          <div class="collision-header">
+            <div class="collision-pair">${avatars}</div>
+          </div>
+          ${collision.dialogues.map(d => `
+            <div class="dialogue-block">
+              <div class="dialogue-speaker">${d.speaker}</div>
+              <div class="dialogue-text">${d.text}</div>
+            </div>
+          `).join('')}
+        `;
+        
+        container.appendChild(card);
+      });
+    }
+    
+    function renderTheater(roles, mode) {
+      const container = document.getElementById('contentSection');
+      
+      // 只有5人模式且有3人时才显示3人小剧场
+      if (mode === 'core5' && roles.length >= 3) {
+        // 移除现有的小剧场
+        container.querySelectorAll('.theater-card').forEach(el => el.remove());
+        
+        const theater = document.createElement('div');
+        theater.className = 'theater-card fade-in';
+        theater.id = 'theater3';
+        theater.innerHTML = `
+          <h3 class="theater-title">3人小剧场</h3>
+          <p class="theater-subtitle">${THEATER_3.title}</p>
+          <div class="theater-content">
+            ${THEATER_3.content.map(line => `
+              <div class="theater-line">
+                <div class="theater-speaker">${line.speaker}</div>
+                <div class="theater-text">${line.text}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(theater);
+      }
+    }
+    
+    function renderScript(roles, mode) {
+      const container = document.getElementById('contentSection');
+      const script = mode === 'core5' ? SCRIPT_5 : SCRIPT_10;
+      const requiredCount = mode === 'core5' ? 5 : 10;
+      
+      if (roles.length < requiredCount) return;
+      
+      // 移除现有的剧本
+      container.querySelectorAll('.script-card').forEach(el => el.remove());
+      
+      const card = document.createElement('div');
+      card.className = 'script-card fade-in';
+      card.innerHTML = `
+        <div class="script-header">
+          <span class="script-badge">${script.mode}</span>
+          <h3 class="script-title">${script.title}</h3>
+          <p class="script-meta">⏱ ${script.duration}</p>
+        </div>
+        ${script.acts.map(act => `
+          <div class="act-section">
+            <h4 class="act-title">${act.title} <span style="font-weight: normal; font-size: 13px; color: #A0826D;">（${act.time}）</span></h4>
+            <div class="script-content">
+              ${act.content.map(p => `<p>${p}</p>`).join('')}
+            </div>
+          </div>
+        `).join('')}
+        <div class="script-note">💡 ${script.note}</div>
+      `;
+      container.appendChild(card);
+    }
+    
+    function renderUnlockHints(roles, mode) {
+      const count = roles.length;
+      
+      // 隐藏所有提示
+      document.getElementById('unlockHint1').classList.add('hidden');
+      document.getElementById('unlockHint2').classList.add('hidden');
+      document.getElementById('unlockHint5').classList.add('hidden');
+      document.getElementById('unlockHint10').classList.add('hidden');
+      
+      if (mode === 'core5') {
+        // 5人模式
+        if (count === 0) return;
+        if (count === 1) {
+          document.getElementById('unlockHint1').classList.remove('hidden');
+          document.getElementById('unlockHint1').querySelector('.unlock-requirement').textContent = '还需 2 人';
+        }
+        if (count === 2) {
+          document.getElementById('unlockHint2').classList.remove('hidden');
+          document.getElementById('unlockHint2').querySelector('.unlock-requirement').textContent = '还需 3 人';
+        }
+        if (count >= 3 && count < 5) {
+          document.getElementById('unlockHint5').classList.remove('hidden');
+          document.getElementById('unlockHint5').querySelector('.unlock-requirement').textContent = '还需 ' + (5 - count) + ' 人解锁完整剧本';
+        }
+      } else {
+        // 10人模式
+        if (count === 0) return;
+        if (count === 1) {
+          document.getElementById('unlockHint1').classList.remove('hidden');
+          document.getElementById('unlockHint1').querySelector('.unlock-requirement').textContent = '还需 2 人';
+        }
+        if (count === 2) {
+          document.getElementById('unlockHint2').classList.remove('hidden');
+          document.getElementById('unlockHint2').querySelector('.unlock-requirement').textContent = '还需 3 人';
+        }
+        if (count >= 3 && count < 5) {
+          document.getElementById('unlockHint5').classList.remove('hidden');
+          document.getElementById('unlockHint5').querySelector('.unlock-requirement').textContent = '还需 ' + (5 - count) + ' 人解锁5人版剧本';
+        }
+        if (count >= 5 && count < 10) {
+          document.getElementById('unlockHint10').classList.remove('hidden');
+          document.getElementById('unlockHint10').querySelector('.unlock-requirement').textContent = '还需 ' + (10 - count) + ' 人解锁完整剧本';
+        }
+      }
+    }
+    
+    function updateUI() {
+      const roles = getUnlockedRoles();
+      const mode = getCurrentMode(roles);
+      
+      // 更新进度条
+      renderProgress(roles, mode);
+      
+      // 更新已解锁列表
+      renderUnlockedList(roles);
+      
+      // 显示角色卡片（显示最后一个碰的角色）
+      const lastRole = roles[roles.length - 1];
+      if (lastRole && ROLES[lastRole]) {
+        renderCharacterCard(lastRole);
+      }
+      
+      // 隐藏空状态
+      if (roles.length > 0) {
+        document.getElementById('emptyState').classList.add('hidden');
+      } else {
+        document.getElementById('emptyState').classList.remove('hidden');
+      }
+      
+      // 渲染碰撞台词
+      renderCollision(roles);
+      
+      // 渲染小剧场
+      renderTheater(roles, mode);
+      
+      // 渲染剧本
+      renderScript(roles, mode);
+      
+      // 更新解锁提示
+      renderUnlockHints(roles, mode);
+    }
+    
+    // ========== 事件处理 ==========
+    
+    function handleNFCRead(roleId) {
+      if (!ROLES[roleId]) {
+        console.error('Unknown role:', roleId);
+        return;
+      }
+      
+      addRole(roleId);
+      updateUI();
+      
+      // 清理URL参数
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    function handleReset() {
+      if (confirm('确定要重新开始吗？所有进度将被清除。')) {
+        resetProgress();
+        document.getElementById('characterCard').classList.add('hidden');
+        updateUI();
+      }
+    }
+    
+    // ========== 初始化 ==========
+    
+    function init() {
+      // 绑定按钮事件
+      document.getElementById('resetBtn').addEventListener('click', handleReset);
+      
+      // 检查URL参数
+      const urlRole = getRoleFromUrl();
+      if (urlRole) {
+        handleNFCRead(urlRole);
+      }
+      
+      // 初始化UI
+      updateUI();
+    }
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
